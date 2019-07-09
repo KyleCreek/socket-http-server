@@ -5,6 +5,7 @@ from os import listdir
 from os.path import isfile, join
 from os import walk
 import mimetypes
+import os
 
 def response_ok(body=b"This is a minimal response", mimetype=b"text/plain"):
     """
@@ -46,7 +47,7 @@ def response_method_not_allowed():
     
     # TODO: Implement response_method_not_allowed
     return b"\r\n".join([
-            b"HTTP/1.1 405 RESPONSE NOT ALLOWED",
+            b"HTTP/1.1 405 Method Not Allowed",
             b"",
             b"You Can't do that on this Server!"
             ])
@@ -136,15 +137,22 @@ def response_path(path):
 
     # Establish the Current Workinf Directory and add the "Webroot"
     file_path = os.getcwd() + "\webroot"
+    print("Here is the file path", file_path + path)
 
     # Create an Empty List to store all file routes
     all_files = []
+    all_dirs = []
 
     for (dirname, dirnames, filenames) in walk(file_path):
+        # Collect File Names
         for filename in filenames:
             all_files.append(os.path.join(dirname, filename))
+        # Collect Directory Names
+        for dirname in dirnames:
+            all_dirs.append(os.path.join(file_path, dirname))
     
-    if (file_path + path) in all_files:
+    # Case Statement where provided file exists in the server
+    if (file_path + path) in all_files or (file_path + path) in all_dirs:
 
 
         # Parse the Path for examination and comparison to content
@@ -153,6 +161,7 @@ def response_path(path):
         # Create a list of the Path, length of the list is greater than
         # 2, then We know a directory has been passed
         path_elements = path.split(".")
+        
         
         # Case Statement to Handle Files
         if len(path_elements) > 1:
@@ -208,6 +217,7 @@ def response_path(path):
         # Case Statement to Handle Directories
         ### Note: This section currently Works
         else:
+            #input("I'm in the else statement")
             # Re-Route the File Path to return Text of Directory
             get_path = file_path + path
 
@@ -223,8 +233,7 @@ def response_path(path):
             mime_type = b"text/plain"
 
     else:
-        content = b"Not Implemented"
-        mime_type=b"Not Implemented"
+        raise NameError
     return content, mime_type
 
 
@@ -268,7 +277,8 @@ def server(log_buffer=sys.stderr):
 
                     if '\r\n\r\n' in request:
                         break
-		
+                    
+                    
 
                 print("Request received:\n{}\n\n".format(request))
 

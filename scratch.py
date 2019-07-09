@@ -47,15 +47,23 @@ def response_path(path):
 
     # Establish the Current Workinf Directory and add the "Webroot"
     file_path = os.getcwd() + "\webroot"
+    print("Here is the path", path)
 
     # Create an Empty List to store all file routes
     all_files = []
+    all_dirs = []
 
     for (dirname, dirnames, filenames) in walk(file_path):
         for filename in filenames:
-            all_files.append(os.path.join(dirname, filename))
+            all_files.append(os.path.join(filename))
+        for dirname in dirnames:
+            all_dirs.append(os.path.join(file_path, dirname))
+    print(all_files)
+    print(all_dirs)
+    input()
     
-    if (file_path + path) in all_files:
+    ### THe problem is the backslash and slahses. 
+    if path in all_files or (file_path + path) in all_dirs:
 
 
         # Parse the Path for examination and comparison to content
@@ -64,6 +72,8 @@ def response_path(path):
         # Create a list of the Path, length of the list is greater than
         # 2, then We know a directory has been passed
         path_elements = path.split(".")
+        
+        
         
         # Case Statement to Handle Files
         if len(path_elements) > 1:
@@ -119,6 +129,7 @@ def response_path(path):
         # Case Statement to Handle Directories
         ### Note: This section currently Works
         else:
+            input("I'm in the else statement")
             # Re-Route the File Path to return Text of Directory
             get_path = file_path + path
 
@@ -139,7 +150,9 @@ def response_path(path):
     return content, mime_type
 
 
-paths = ['\\a_web_page.html', '\\favicon.ico','\\images\\','\\images\\sample_1.png']
+paths = ['\\test.txt','\\images','/images/sample_1.png']
 
-test = response_path('\\images\\sample_1.png')
-#print("THis is test", test)
+for path in paths:
+    content, mime_type = response_path(path)
+    print("Content", content)
+    print("mime Type", mime_type)
